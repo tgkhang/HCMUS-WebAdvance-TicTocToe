@@ -84,7 +84,7 @@ function ImageDetails() {
           </Typography>
 
           <Stack direction='row' spacing={1} sx={{ marginBottom: 2 }}>
-            <Chip label={`${photo.width} � ${photo.height}`} color='primary' />
+            <Chip label={`${photo.width} x ${photo.height}`} color='primary' />
             <Chip label={`ID: ${photo.id}`} variant='outlined' />
           </Stack>
 
@@ -93,7 +93,7 @@ function ImageDetails() {
               <strong>Author:</strong> {photo.author}
             </Typography>
             <Typography variant='body1' color='text.secondary' paragraph>
-              <strong>Dimensions:</strong> {photo.width} � {photo.height} pixels
+              <strong>Dimensions:</strong> {photo.width} x {photo.height} pixels
             </Typography>
             <Typography variant='body1' color='text.secondary' paragraph>
               <strong>Photo URL:</strong>{' '}
