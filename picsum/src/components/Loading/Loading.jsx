@@ -1,8 +1,5 @@
 import { Box, CircularProgress, Typography } from '@mui/material'
 
-/**
- * Loading component - Shows a loading spinner with optional message
- */
 function Loading({ message = 'Loading...' }) {
   return (
     <Box
@@ -12,11 +9,11 @@ function Loading({ message = 'Loading...' }) {
         alignItems: 'center',
         justifyContent: 'center',
         padding: 4,
-        minHeight: '200px'
+        minHeight: '200px',
       }}
     >
       <CircularProgress size={50} />
-      <Typography variant="body1" sx={{ marginTop: 2 }} color="text.secondary">
+      <Typography variant='body1' sx={{ marginTop: 2 }} color='text.secondary'>
         {message}
       </Typography>
     </Box>

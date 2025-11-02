@@ -16,19 +16,19 @@ function App() {
       }}
     >
       <HeaderBar />
-      <Box component="main" sx={{ flexGrow: 1, p: 2 }}>
+      <Box component='main' sx={{ flexGrow: 1, p: 2 }}>
         <Routes>
           {/* Home route - redirects to /photos */}
-          <Route path="/" element={<Navigate to="/photos" replace />} />
+          <Route path='/' element={<Navigate to='/photos' replace />} />
 
           {/* Photo gallery route */}
-          <Route path="/photos" element={<Board />} />
+          <Route path='/photos' element={<Board />} />
 
           {/* Photo detail route with dynamic ID */}
-          <Route path="/photos/:id" element={<ImageDetail />} />
+          <Route path='/photos/:id' element={<ImageDetail />} />
 
           {/* 404 Not Found route */}
-          <Route path="*" element={<NotFound />} />
+          <Route path='*' element={<NotFound />} />
         </Routes>
       </Box>
     </Box>

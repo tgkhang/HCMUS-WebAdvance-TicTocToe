@@ -9,7 +9,7 @@ import {
   Button,
   Box,
   Chip,
-  Stack
+  Stack,
 } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import DownloadIcon from '@mui/icons-material/Download'
@@ -58,34 +58,36 @@ function ImageDetails() {
   }
 
   if (loading) {
-    return <Loading message="Loading photo details..." />
+    return <Loading message='Loading photo details...' />
   }
 
   if (error) {
-    return <ErrorMessage message={error} onRetry={() => window.location.reload()} />
+    return (
+      <ErrorMessage message={error} onRetry={() => window.location.reload()} />
+    )
   }
 
   if (!photo) {
-    return <ErrorMessage message="Photo not found" />
+    return <ErrorMessage message='Photo not found' />
   }
 
   // Generate full-size image URL
   const imageUrl = `https://picsum.photos/id/${photo.id}/800/600`
 
   return (
-    <Container maxWidth="md" sx={{ paddingY: 4 }}>
+    <Container maxWidth='md' sx={{ paddingY: 4 }}>
       <Button
         startIcon={<ArrowBackIcon />}
         onClick={handleGoBack}
         sx={{ marginBottom: 3 }}
-        variant="outlined"
+        variant='outlined'
       >
         Back to Gallery
       </Button>
 
       <Card>
         <CardMedia
-          component="img"
+          component='img'
           image={imageUrl}
           alt={`Photo by ${photo.author}`}
           sx={{
@@ -93,29 +95,29 @@ function ImageDetails() {
             height: 'auto',
             maxHeight: '600px',
             objectFit: 'contain',
-            backgroundColor: '#f5f5f5'
+            backgroundColor: '#f5f5f5',
           }}
         />
         <CardContent>
-          <Typography variant="h4" component="h1" gutterBottom>
+          <Typography variant='h4' component='h1' gutterBottom>
             Photo by {photo.author}
           </Typography>
 
-          <Stack direction="row" spacing={1} sx={{ marginBottom: 2 }}>
-            <Chip label={`${photo.width} � ${photo.height}`} color="primary" />
-            <Chip label={`ID: ${photo.id}`} variant="outlined" />
+          <Stack direction='row' spacing={1} sx={{ marginBottom: 2 }}>
+            <Chip label={`${photo.width} � ${photo.height}`} color='primary' />
+            <Chip label={`ID: ${photo.id}`} variant='outlined' />
           </Stack>
 
           <Box sx={{ marginTop: 3 }}>
-            <Typography variant="body1" color="text.secondary" paragraph>
+            <Typography variant='body1' color='text.secondary' paragraph>
               <strong>Author:</strong> {photo.author}
             </Typography>
-            <Typography variant="body1" color="text.secondary" paragraph>
+            <Typography variant='body1' color='text.secondary' paragraph>
               <strong>Dimensions:</strong> {photo.width} � {photo.height} pixels
             </Typography>
-            <Typography variant="body1" color="text.secondary" paragraph>
+            <Typography variant='body1' color='text.secondary' paragraph>
               <strong>Photo URL:</strong>{' '}
-              <a href={photo.url} target="_blank" rel="noopener noreferrer">
+              <a href={photo.url} target='_blank' rel='noopener noreferrer'>
                 {photo.url}
               </a>
             </Typography>
@@ -123,7 +125,7 @@ function ImageDetails() {
 
           <Box sx={{ marginTop: 3 }}>
             <Button
-              variant="contained"
+              variant='contained'
               startIcon={<DownloadIcon />}
               onClick={handleDownload}
               fullWidth

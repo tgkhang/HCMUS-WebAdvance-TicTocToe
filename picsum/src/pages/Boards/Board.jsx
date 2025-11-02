@@ -44,7 +44,7 @@ function Board() {
       if (data.length === 0) {
         setHasMore(false)
       } else {
-        setPhotos(prev => pageNum === 1 ? data : [...prev, ...data])
+        setPhotos((prev) => (pageNum === 1 ? data : [...prev, ...data]))
       }
       setInitialLoad(false)
     } catch (err) {
@@ -67,7 +67,7 @@ function Board() {
   // Restore scroll position when coming back
   useEffect(() => {
     if (savedState?.scrollPosition && !scrollRestored.current) {
-      console.log('Restoring scroll position:', savedState.scrollPosition)
+      // console.log('Restoring scroll position:', savedState.scrollPosition)
       setTimeout(() => {
         window.scrollTo(0, savedState.scrollPosition)
         scrollRestored.current = true
@@ -92,28 +92,44 @@ function Board() {
   }, [])
 
   // Infinite scroll - last element ref
-  const lastPhotoRef = useCallback((node) => {
-    if (loading || isFetching.current) return
-    if (observer.current) observer.current.disconnect()
+  const lastPhotoRef = useCallback(
+    (node) => {
+      if (loading || isFetching.current) return
+      if (observer.current) observer.current.disconnect()
 
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore && !loading && !isFetching.current && allowInfiniteScroll.current) {
-        console.log('Last photo is visible, loading more...')
-        setPage(prevPage => {
-          console.log('Incrementing page from', prevPage, 'to', prevPage + 1)
-          return prevPage + 1
-        })
-      }
-    }, {
-      root: null,
-      rootMargin: '-100px', // Only trigger when last element is 100px into viewport (truly at bottom)
-      threshold: 0
-    })
+      observer.current = new IntersectionObserver(
+        (entries) => {
+          if (
+            entries[0].isIntersecting &&
+            hasMore &&
+            !loading &&
+            !isFetching.current &&
+            allowInfiniteScroll.current
+          ) {
+            console.log('Last photo is visible, loading more...')
+            setPage((prevPage) => {
+              console.log(
+                'Incrementing page from',
+                prevPage,
+                'to',
+                prevPage + 1
+              )
+              return prevPage + 1
+            })
+          }
+        },
+        {
+          root: null,
+          rootMargin: '-100px',
+          threshold: 0,
+        }
+      )
 
-    if (node) observer.current.observe(node)
-  }, [loading, hasMore])
+      if (node) observer.current.observe(node)
+    },
+    [loading, hasMore]
+  )
 
-  // Fetch more photos when page changes
   useEffect(() => {
     if (page > 1) {
       fetchPhotos(page)
@@ -136,40 +152,35 @@ function Board() {
 
   // Show loading on initial load
   if (initialLoad && loading) {
-    return <Loading message="Loading photos..." />
+    return <Loading message='Loading photos...' />
   }
 
   return (
-    <Container maxWidth="lg" sx={{ paddingY: 4 }}>
+    <Container maxWidth='lg' sx={{ paddingY: 4 }}>
       <Typography
-        variant="h4"
-        component="h1"
+        variant='h4'
+        component='h1'
         gutterBottom
         sx={{
           marginBottom: 3,
-          textAlign: 'center'
+          textAlign: 'center',
         }}
       >
         Photo Gallery
       </Typography>
 
       <Typography
-        variant="body2"
+        variant='body2'
         sx={{
           marginBottom: 2,
           textAlign: 'center',
-          color: 'text.secondary'
+          color: 'text.secondary',
         }}
       >
         Showing {photos.length} photos (Page {page})
       </Typography>
 
-      <Grid
-        container
-        spacing={3}
-        justifyContent="center"
-        alignItems="stretch"
-      >
+      <Grid container spacing={3} justifyContent='center' alignItems='stretch'>
         {photos.map((photo, index) => (
           <Grid
             item
@@ -187,7 +198,7 @@ function Board() {
                 const currentState = {
                   photos,
                   page,
-                  scrollPosition: window.scrollY
+                  scrollPosition: window.scrollY,
                 }
                 navigate(`/photos/${photo.id}`, { state: currentState })
               }}
@@ -199,14 +210,14 @@ function Board() {
       {/* Loading more indicator */}
       {loading && !initialLoad && (
         <Box sx={{ marginTop: 4 }}>
-          <Loading message="Loading more photos..." />
+          <Loading message='Loading more photos...' />
         </Box>
       )}
 
       {/* End of list message */}
       {!hasMore && photos.length > 0 && (
         <Box sx={{ textAlign: 'center', marginTop: 4, paddingY: 2 }}>
-          <Typography variant="body1" color="text.secondary">
+          <Typography variant='body1' color='text.secondary'>
             No more photos to load
           </Typography>
         </Box>
