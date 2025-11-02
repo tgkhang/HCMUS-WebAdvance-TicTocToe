@@ -22,7 +22,7 @@ function App() {
           <Route path='/' element={<Navigate to='/photos' replace />} />
 
           {/* Photo gallery route */}
-          <Route path='/photos' element={<Board />} replace />
+          <Route path='/photos' element={<Board />} />
 
           {/* Photo detail route with dynamic ID */}
           <Route path='/photos/:id' element={<ImageDetail />} />

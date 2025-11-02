@@ -16,14 +16,12 @@ function Board() {
       const didNavigateAway = sessionStorage.getItem('didNavigateAway') === 'true'
 
       const stored = sessionStorage.getItem('boardState')
-      console.log('Stored state:', stored ? 'Found' : 'Not found', 'Did navigate away:', didNavigateAway)
 
       // Clear the navigation flag
       sessionStorage.removeItem('didNavigateAway')
 
       if (stored && didNavigateAway) {
         const parsed = JSON.parse(stored)
-        console.log('Restoring state:', { photosCount: parsed.photos?.length, page: parsed.page, scrollPosition: parsed.scrollPosition })
 
         // Check if data is recent (within 10 minutes)
         if (parsed.timestamp && Date.now() - parsed.timestamp < 10 * 60 * 1000) {
@@ -33,8 +31,8 @@ function Board() {
 
       // Clear state if not restoring
       sessionStorage.removeItem('boardState')
-    } catch (err) {
-      console.error('Failed to restore state:', err)
+    } catch {
+      // Silent fail - just start fresh
     }
     return null
   }
