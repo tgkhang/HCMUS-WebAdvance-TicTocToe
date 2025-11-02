@@ -1,28 +1,56 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Container, Typography, Box, Grid } from '@mui/material'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { getPictures } from '~/apis'
 import PhotoCard from '~/components/PhotoCard/PhotoCard'
 import Loading from '~/components/Loading/Loading'
 import ErrorMessage from '~/components/ErrorMessage/ErrorMessage'
 
 function Board() {
-  const location = useLocation()
   const navigate = useNavigate()
 
-  // Restore state from navigation if available
-  const savedState = location.state
+  // Try to restore state from sessionStorage (for browser back button ONLY)
+  const getStoredState = () => {
+    try {
+      // Check if we just navigated away (back button scenario)
+      const didNavigateAway = sessionStorage.getItem('didNavigateAway') === 'true'
 
-  const [photos, setPhotos] = useState(savedState?.photos || [])
-  const [page, setPage] = useState(savedState?.page || 1)
+      const stored = sessionStorage.getItem('boardState')
+      console.log('Stored state:', stored ? 'Found' : 'Not found', 'Did navigate away:', didNavigateAway)
+
+      // Clear the navigation flag
+      sessionStorage.removeItem('didNavigateAway')
+
+      if (stored && didNavigateAway) {
+        const parsed = JSON.parse(stored)
+        console.log('Restoring state:', { photosCount: parsed.photos?.length, page: parsed.page, scrollPosition: parsed.scrollPosition })
+
+        // Check if data is recent (within 10 minutes)
+        if (parsed.timestamp && Date.now() - parsed.timestamp < 10 * 60 * 1000) {
+          return parsed
+        }
+      }
+
+      // Clear state if not restoring
+      sessionStorage.removeItem('boardState')
+    } catch (err) {
+      console.error('Failed to restore state:', err)
+    }
+    return null
+  }
+
+  const storedState = getStoredState()
+
+  const [photos, setPhotos] = useState(storedState?.photos || [])
+  const [page, setPage] = useState(storedState?.page || 1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [hasMore, setHasMore] = useState(true)
-  const [initialLoad, setInitialLoad] = useState(!savedState)
+  const [initialLoad, setInitialLoad] = useState(!storedState)
   const observer = useRef()
   const isFetching = useRef(false)
-  const allowInfiniteScroll = useRef(savedState ? true : false)
-  const scrollRestored = useRef(false)
+  const allowInfiniteScroll = useRef(storedState ? true : false)
+  const hasRestoredScroll = useRef(false)
 
   // Fetch photos function
   const fetchPhotos = useCallback(async (pageNum) => {
@@ -56,40 +84,67 @@ function Board() {
     }
   }, [])
 
-  // Load initial photos (only if no saved state)
+  // Load initial photos only if no stored state
   useEffect(() => {
-    if (!savedState) {
+    if (!storedState) {
       fetchPhotos(1)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Restore scroll position when coming back
+  // Restore scroll position when coming back via browser back button
   useEffect(() => {
-    if (savedState?.scrollPosition && !scrollRestored.current) {
-      // console.log('Restoring scroll position:', savedState.scrollPosition)
-      setTimeout(() => {
-        window.scrollTo(0, savedState.scrollPosition)
-        scrollRestored.current = true
+    if (storedState?.scrollPosition && !hasRestoredScroll.current) {
+      // Wait a bit for images to render
+      const timer = setTimeout(() => {
+        window.scrollTo(0, storedState.scrollPosition)
+        hasRestoredScroll.current = true
       }, 100)
 
-      // Clear the state from history to avoid issues with refresh
-      navigate(location.pathname, { replace: true, state: null })
+      return () => clearTimeout(timer)
     }
-  }, [savedState, navigate, location.pathname])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  // Enable infinite scroll only after user scrolls
+
+  // Save state to sessionStorage periodically for back button
   useEffect(() => {
+    const saveState = () => {
+      try {
+        const state = {
+          photos,
+          page,
+          scrollPosition: window.scrollY,
+          timestamp: Date.now()
+        }
+        sessionStorage.setItem('boardState', JSON.stringify(state))
+      } catch (err) {
+        console.error('Failed to save state:', err)
+      }
+    }
+
+    // Save on scroll (debounced)
+    let scrollTimer
     const handleScroll = () => {
       if (!allowInfiniteScroll.current) {
         console.log('User scrolled - enabling infinite scroll')
         allowInfiniteScroll.current = true
       }
+
+      clearTimeout(scrollTimer)
+      scrollTimer = setTimeout(saveState, 500)
     }
 
     window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      clearTimeout(scrollTimer)
+      // Save final state on unmount
+      saveState()
+    }
+  }, [photos, page])
+
 
   // Infinite scroll - last element ref
   const lastPhotoRef = useCallback(
@@ -194,13 +249,9 @@ function Board() {
             <PhotoCard
               photo={photo}
               onNavigate={() => {
-                // Save current state before navigating
-                const currentState = {
-                  photos,
-                  page,
-                  scrollPosition: window.scrollY,
-                }
-                navigate(`/photos/${photo.id}`, { state: currentState })
+                // Mark that we're navigating away intentionally
+                sessionStorage.setItem('didNavigateAway', 'true')
+                navigate(`/photos/${photo.id}`)
               }}
             />
           </Grid>

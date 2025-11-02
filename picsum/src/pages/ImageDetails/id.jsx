@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import {
   Container,
   Card,
@@ -11,7 +11,6 @@ import {
   Chip,
   Stack,
 } from '@mui/material'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import DownloadIcon from '@mui/icons-material/Download'
 import { getPictureDetails } from '~/apis'
 import Loading from '~/components/Loading/Loading'
@@ -19,14 +18,9 @@ import ErrorMessage from '~/components/ErrorMessage/ErrorMessage'
 
 function ImageDetails() {
   const { id } = useParams()
-  const navigate = useNavigate()
-  const location = useLocation()
   const [photo, setPhoto] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-
-  // Get saved gallery state if available
-  const galleryState = location.state
 
   // Fetch photo details
   useEffect(() => {
@@ -46,11 +40,6 @@ function ImageDetails() {
 
     fetchPhotoDetails()
   }, [id])
-
-  const handleGoBack = () => {
-    // Navigate back with saved state to restore scroll position and photos
-    navigate('/photos', { state: galleryState })
-  }
 
   const handleDownload = () => {
     const downloadUrl = `https://picsum.photos/id/${id}/${photo.width}/${photo.height}`
@@ -76,15 +65,6 @@ function ImageDetails() {
 
   return (
     <Container maxWidth='md' sx={{ paddingY: 4 }}>
-      <Button
-        startIcon={<ArrowBackIcon />}
-        onClick={handleGoBack}
-        sx={{ marginBottom: 3 }}
-        variant='outlined'
-      >
-        Back to Gallery
-      </Button>
-
       <Card>
         <CardMedia
           component='img'
